@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="ru"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Перекуп 3 — техника, Mac и консоли</title>
+<style>
+:root{--bg:#f2f3f5;--sf:#fff;--ink:#1a1c21;--mu:#8a8f9a;--ln:#e4e6ea;--br:#0a6fe0;--bad:#e0393e;--ok:#12a56b;--nv:#101a30;--f:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,sans-serif;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media(prefers-color-scheme:dark){:root{--bg:#12151c;--sf:#1b1f28;--ink:#eceef3;--mu:#8f96a5;--ln:#2b303c;--br:#4c9bff}}
+*,*::before,*::after{box-sizing:inherit}
+html,body{height:100%;margin:0}body{background:var(--bg);color:var(--ink);font:15px var(--f);-webkit-tap-highlight-color:transparent}
+button,input,textarea{font:inherit;color:inherit}button{cursor:pointer}
+#app{height:100%;display:flex;flex-direction:column;max-width:560px;margin:auto;background:var(--bg)}
+header{flex:none;background:var(--nv);color:#fff;padding:12px 16px;display:flex;justify-content:space-between;align-items:center}
+header b{font-size:20px}header small{opacity:.7;display:block}
+main{flex:1;overflow:auto;padding:12px}
+nav{flex:none;display:flex;background:var(--sf);border-top:1px solid var(--ln)}
+nav button{flex:1;border:0;background:none;padding:12px 0;color:var(--mu);font-weight:600}nav button.on{color:var(--br);box-shadow:inset 0 2px var(--br)}
+.card{background:var(--sf);border:1px solid var(--ln);border-radius:14px;padding:12px;margin-bottom:10px}
+.row{display:flex;justify-content:space-between;align-items:center;gap:8px}
+.mu{color:var(--mu);font-size:13px}.ok{color:var(--ok)}.bad{color:var(--bad)}
+.btn{border:0;border-radius:10px;padding:9px 13px;background:var(--br);color:#fff;font-weight:600;margin:6px 6px 0 0}
+.btn.g{background:var(--bg);color:var(--ink);border:1px solid var(--ln)}.btn.r{background:var(--bad)}
+.chips{display:flex;gap:6px;overflow:auto;margin-bottom:10px}.chips button{flex:none;border:1px solid var(--ln);background:var(--sf);border-radius:20px;padding:6px 12px}.chips .on{background:var(--br);color:#fff;border-color:var(--br)}
+input,textarea{width:100%;border:1px solid var(--ln);background:var(--sf);border-radius:10px;padding:10px;margin:5px 0}
+.term{background:#0d1117;color:#7ee787;font:13px ui-monospace,Menlo,monospace;border-radius:12px;padding:10px;height:46vh;overflow:auto;white-space:pre-wrap}
+.term input{background:#0d1117;color:#7ee787;border:0;margin:0;padding:6px 0;font:inherit}
+.md{position:fixed;inset:0;background:rgba(0,0,0,.5);display:flex;align-items:flex-end;justify-content:center;z-index:9}
+.md>div{background:var(--bg);width:100%;max-width:560px;max-height:88%;overflow:auto;border-radius:18px 18px 0 0;padding:16px;padding-bottom:calc(16px + env(safe-area-inset-bottom,0px))}
+.toast{position:fixed;left:50%;top:calc(14px + env(safe-area-inset-top,0px));transform:translateX(-50%);background:var(--nv);color:#fff;padding:10px 16px;border-radius:12px;z-index:20;max-width:90%}
+.rain{position:fixed;top:-30px;z-index:30;animation:f 2.6s linear forwards;pointer-events:none}@keyframes f{to{transform:translateY(115vh)}}
+h2{margin:6px 0 10px}label{display:flex;gap:8px;align-items:center;margin:8px 0}label input{width:auto;margin:0}
+@media(prefers-reduced-motion:reduce){.rain{display:none}}
+</style></head><body><div id="app"></div><div id="md"></div>
+<script>
+// ===== НАСТРОЙКИ АДМИНА: ПОМЕНЯЙ КЛЮЧ ПЕРЕД СБОРКОЙ APK =====
+const ADMIN_KEY='CHANGE-ME-2026';
+// ================================================================
+const mem={},ST={g:k=>{try{return localStorage.getItem(k)}catch(e){return mem[k]||null}},s:(k,v)=>{try{localStorage.setItem(k,v)}catch(e){mem[k]=v}}};
+const $=s=>document.querySelector(s),app=$('#app');
+const h=s=>{let a=0xdeadbeef,b=0x41c6ce57;for(let i=0;i<s.length;i++){const c=s.charCodeAt(i);a=Math.imul(a^c,2654435761);b=Math.imul(b^c,1597334677)}a=Math.imul(a^a>>>16,2246822507)^Math.imul(b^b>>>13,3266489909);b=Math.imul(b^b>>>16,2246822507)^Math.imul(a^a>>>13,3266489909);return(4294967296*(2097151&b)+(a>>>0)).toString(36)};
+const esc=s=>String(s).replace(/[&<>"']/g,c=>'&#'+c.charCodeAt(0)+';'),fmt=n=>Math.round(n).toLocaleString('ru-RU')+' ₽';
+const R=(a,b)=>a+Math.random()*(b-a),P=a=>a[Math.random()*a.length|0],r100=n=>Math.round(n/100)*100;
+let g=null,tab='m',cat=-1,term=['Перекуп OS 2.0. Введите help'],taps=0,adm=0;
+const C=[[0,'iPhone 13',38000],[0,'iPhone 15 Pro',85000],[0,'Samsung S23',42000],[0,'Pixel 8',40000],[1,'MacBook Air M1',55000],[1,'MacBook Pro M3',150000],[1,'iPad Air',45000],[1,'iPad Pro',80000],[2,'PlayStation 5',40000],[2,'Xbox Series X',38000],[2,'Switch OLED',25000],[3,'RTX 4070',45000],[3,'RTX 4090',140000],[4,'Apple Watch 9',28000],[4,'AirPods Pro 2',15000]];
+const CN=['Телефоны','Mac и iPad','Консоли','Видеокарты','Часы и аудио'],DF={scr:['экран',.18],bat:['батарея',.12],sw:['прошивка/блокировка',.35],pcb:['плата',.45]},SN=['Артём','Олег','Света','Дима','Катя','Макс','Ира','Влад'];
+const val=i=>r100(Math.max(i.base*.1,i.base*i.c*(1-i.d.reduce((s,k)=>s+DF[k][1],0)))),clean=i=>r100(i.base*i.c),cl=i=>i.c>.9?'Как новый':i.c>.75?'Хорошее':'Следы износа';
+const dn=i=>i.d.map(k=>DF[k][0]).join(', ')||'нет';
+function mk(){const[ct,n,b]=P(C),d=[];for(const k in DF)if(Math.random()<(k=='pcb'?.07:.22))d.push(k);
+const i={id:Math.random().toString(36).slice(2,8),ct,n,base:b,c:R(.6,1),d,seen:0,s:P(SN),hon:Math.random()<.5,cost:0};
+i.ask=r100((i.hon?val(i):clean(i))*R(.9,1.1)*(1-Math.min(g.rep,100)/600));i.fl=r100(i.ask*R(.72,.9));i.t=3;return i}
+const desc=i=>i.hon&&i.d.length?'Продаю, есть: '+dn(i):'Всё работает, без дефектов';
+function save(){ST.s('pk2:'+g.email,JSON.stringify(g));ST.s('pk2:last',g.email)}
+function toast(t){const e=document.createElement('div');e.className='toast';e.textContent=t;document.body.append(e);setTimeout(()=>e.remove(),2600)}
+function M(x){$('#md').innerHTML='<div class="md" onclick="if(event.target==this)X()"><div>'+x+'</div></div>'}function X(){$('#md').innerHTML=''}
+// ===== Аккаунт =====
+function auth(m='in'){const t={in:'Вход',up:'Регистрация',rec:'Восстановление'}[m];
+app.innerHTML=`<main style="display:flex;flex-direction:column;justify-content:center"><h2>Перекуп 3</h2><div class="mu">Телефоны, MacBook, консоли, видеокарты. Купи дёшево, продай дороже.</div>
+<div class="chips" style="margin-top:14px">${['in','up','rec'].map(k=>`<button class="${k==m?'on':''}" onclick="auth('${k}')">${{in:'Вход',up:'Регистрация',rec:'Забыл пароль'}[k]}</button>`).join('')}</div>
+<input id="em" type="email" placeholder="Почта" autocomplete="email">${m=='up'?'<input id="nk" placeholder="Ник" maxlength="16">':''}
+<input id="pw" type="password" placeholder="${m=='rec'?'Новый пароль':'Пароль'}">
+${m=='rec'?'<div class="mu">Код подтверждения не нужен: введите почту и новый пароль. Работает для аккаунтов на этом устройстве.</div>':''}
+<button class="btn" onclick="doAuth('${m}')">${t}</button><button class="btn g" onclick="imp()">Импорт сохранения</button></main>`}
+function doAuth(m){const em=$('#em').value.trim().toLowerCase(),pw=$('#pw').value;if(!em.includes('@')||pw.length<4)return toast('Нужна почта и пароль от 4 символов');
+const raw=ST.g('pk2:'+em);
+if(m=='up'){if(raw)return toast('Аккаунт уже есть. Войдите или восстановите');const nk=$('#nk').value.trim()||'Игрок';
+g={email:em,ph:h(pw),nick:nk,money:60000,day:1,rep:0,cap:4,lap:1,inv:[],mk:[],used:[],deals:0,profit:0};g.mk=Array.from({length:8},mk)}
+else{if(!raw)return toast('Такого аккаунта нет');const o=JSON.parse(raw);if(m=='in'&&o.ph!=h(pw))return toast('Неверный пароль');if(m=='rec')o.ph=h(pw);g=o}
+save();tab='m';render()}
+function imp(){M(`<h2>Импорт сохранения</h2><textarea id="ix" rows="5" placeholder="Вставьте код сохранения"></textarea><button class="btn" onclick="doImp()">Загрузить</button>`)}
+function doImp(){try{g=JSON.parse(decodeURIComponent(escape(atob($('#ix').value.trim()))));save();X();render();toast('Сохранение загружено')}catch(e){toast('Код повреждён')}}
+function exp(){M(`<h2>Перенос на другое устройство</h2><div class="mu">Скопируйте код и вставьте его через «Импорт сохранения».</div><textarea rows="6" readonly onclick="this.select()">${btoa(unescape(encodeURIComponent(JSON.stringify(g))))}</textarea>`)}
+function out(){ST.s('pk2:last','');g=null;auth()}
+// ===== Экраны =====
+function render(){if(!g)return auth();const T=[['m','Маркет'],['i','Склад'],['l','Ноутбук'],['p','Профиль']];
+app.innerHTML=`<header><div><b>${fmt(g.money)}</b><small>День ${g.day} · репутация ${g.rep}</small></div><div style="text-align:right">${esc(g.nick)}<small>склад ${g.inv.length}/${g.cap}</small></div></header><main>${{m:vM,i:vI,l:vL,p:vP}[tab]()}</main><nav>${T.map(([k,n])=>`<button class="${k==tab?'on':''}" onclick="tab='${k}';render()">${n}</button>`).join('')}</nav>`;
+if(tab=='l'){const t=$('.term');t.scrollTop=1e6}}
+function vM(){const L=g.mk.filter(i=>cat<0||i.ct==cat);
+return`<div class="chips"><button class="${cat<0?'on':''}" onclick="cat=-1;render()">Все</button>${CN.map((n,k)=>`<button class="${cat==k?'on':''}" onclick="cat=${k};render()">${n}</button>`).join('')}</div>
+${L.map(i=>`<div class="card"><div class="row"><b>${i.n}</b><b>${fmt(i.ask)}</b></div><div class="mu">${CN[i.ct]} · ${cl(i)} · ${i.s}</div><div>${desc(i)}</div>
+${i.seen?`<div class="${i.d.length?'bad':'ok'}">Диагностика: дефекты — ${dn(i)}. Реальная цена ≈ ${fmt(val(i))}</div>`:''}
+${i.seen?'':`<button class="btn g" onclick="diagM('${i.id}')">Диагностика 400 ₽</button>`}<button class="btn g" onclick="hag('${i.id}')">Торг (${i.t})</button><button class="btn" onclick="buy('${i.id}',${i.ask})">Купить</button></div>`).join('')||'<div class="mu">Пусто. Нажмите «Следующий день».</div>'}
+<button class="btn" onclick="nd()">Следующий день: новая лента</button>`}
+function nd(){g.day++;g.mk=Array.from({length:8},mk);save();render()}
+function diagM(id){if(g.money<400)return toast('Не хватает денег');g.money-=400;g.mk.find(i=>i.id==id).seen=1;save();render()}
+function hag(id){const i=g.mk.find(x=>x.id==id);M(`<h2>Торг: ${i.n}</h2><div class="mu">Цена ${fmt(i.ask)}. Попыток: ${i.t}. Репутация снижает цену.</div><input id="of" type="number" inputmode="numeric" placeholder="Ваша цена"><button class="btn" onclick="offer('${id}')">Предложить</button>`)}
+function offer(id){const i=g.mk.find(x=>x.id==id),o=+$('#of').value;if(!o)return;X();
+if(o>=i.fl)return buy(id,o);i.t--;if(i.t<=0){g.mk=g.mk.filter(x=>x!=i);toast(i.s+' ушёл: «Не договорились»')}else{i.ask=r100(i.fl+(i.ask-i.fl)*.5);toast(i.s+': «Ладно, '+fmt(i.ask)+', меньше не отдам»')}save();render()}
+function buy(id,p){const i=g.mk.find(x=>x.id==id);if(g.money<p)return toast('Не хватает денег');if(g.inv.length>=g.cap)return toast('Склад полон. Расширьте в профиле');
+g.money-=p;i.cost=p;g.inv.push(i);g.mk=g.mk.filter(x=>x!=i);save();render();toast('Куплено: '+i.n)}
+function vI(){return g.inv.map(i=>`<div class="card"><div class="row"><b>${i.n}</b><span class="mu">купил за ${fmt(i.cost)}</span></div><div class="mu">${cl(i)} · оценка ${i.seen?'≈ '+fmt(val(i)):'до '+fmt(clean(i))}</div>
+${i.seen?`<div class="${i.d.length?'bad':'ok'}">Дефекты: ${dn(i)}</div>`:''}
+${i.seen?'':`<button class="btn g" onclick="diagI('${i.id}')">Диагностика 400 ₽</button>`}${i.d.length||!i.seen?`<button class="btn g" onclick="fix('${i.id}')">Ремонт</button>`:''}<button class="btn" onclick="sell('${i.id}')">Продать</button></div>`).join('')||'<div class="card mu">Склад пуст. Купите что-нибудь в маркете.</div>'}
+function diagI(id){if(g.money<400)return toast('Не хватает денег');g.money-=400;g.inv.find(i=>i.id==id).seen=1;save();render()}
+function fix(id){const i=g.inv.find(x=>x.id==id);const c=r100(i.d.reduce((s,k)=>s+i.base*DF[k][1]*.5,0));if(!i.d.length){i.seen=1;save();render();return toast('Дефектов нет')}
+if(g.money<c)return toast('Ремонт стоит '+fmt(c));g.money-=c;i.d=[];i.seen=1;save();render();toast('Починено за '+fmt(c))}
+function sell(id){const i=g.inv.find(x=>x.id==id),B=[0,1,2].map(()=>({n:P(SN),sv:Math.random()<.5,k:R(.85,1.1)}));i.of=B.map(b=>b);
+M(`<h2>Продажа: ${i.n}</h2>${i.d.length?`<label><input type="checkbox" id="dis"> Сообщить покупателям о дефектах (${dn(i)})</label><div class="mu">Честность даёт репутацию и защищает от возвратов.</div>`:''}
+${B.map((b,k)=>`<div class="card row"><span>${b.n}</span><span><b id="o${k}"></b> <button class="btn" onclick="deal('${id}',${k})">Продать</button></span></div>`).join('')}`);
+const up=()=>B.forEach((b,k)=>{const d=$('#dis')&&$('#dis').checked;b.p=r100((d||b.sv?val(i):clean(i)*.97)*b.k*(1+g.rep/400));$('#o'+k).textContent=fmt(b.p)});up();if($('#dis'))$('#dis').onchange=up}
+function deal(id,k){const i=g.inv.find(x=>x.id==id),b=i.of[k],dis=$('#dis')&&$('#dis').checked;let p=b.p,m='Продано за '+fmt(p);
+if(i.d.length){if(dis)g.rep++;else if(!b.sv&&Math.random()<.45){p=Math.min(p,r100(val(i)*b.k));g.rep=Math.max(0,g.rep-6);m='Возврат! Итог '+fmt(p)+', репутация −6'}else if(b.sv)p=Math.min(p,val(i))}else g.rep++;
+g.money+=p;g.profit+=p-i.cost;g.deals++;g.inv=g.inv.filter(x=>x!=i);save();X();render();toast(m)}
+// ===== Ноутбук =====
+const LN=['Старенький ноут','Рабочая лошадка','Ноут хакера'],LP=[.55,.8,.95];
+function vL(){return`<div class="term">${term.map(esc).join('\n')}</div><div class="card" style="margin-top:8px;padding:4px 10px"><div class="term" style="height:auto;padding:0;background:none"><input id="ti" placeholder="$ команда" autocapitalize="off" autocomplete="off" onkeydown="if(event.key=='Enter')run()"></div></div>
+<div class="chips">${['help','ls','neofetch','upgrade'].map(c=>`<button onclick="$('#ti').value='${c}';run()">${c}</button>`).join('')}</div><div class="mu">${LN[g.lap-1]} (ур. ${g.lap}/3). Шанс прошивки ${Math.round(LP[g.lap-1]*100)}%</div>`}
+function run(){const v=$('#ti').value.trim();if(!v)return;const[c,a]=v.split(/\s+/),i=g.inv[a-1],o=x=>term.push(x);o('$ '+v);
+const need=()=>{if(!i){o('Нет такого устройства. Смотрите ls');return 0}return 1};
+if(c=='help')o('ls — склад\ndiag N — бесплатная диагностика\nflash N — перепрошить\nprice N — оценка\nbal / stats\nupgrade — прокачать ноутбук\nneofetch, clear');
+else if(c=='ls')o(g.inv.map((x,k)=>(k+1)+'. '+x.n+(x.seen?(x.d.length?' ['+dn(x)+']':' [ок]'):' [?]')).join('\n')||'Склад пуст');
+else if(c=='diag'&&need()){i.seen=1;o(i.n+': дефекты — '+dn(i))}
+else if(c=='price'&&need())o(i.n+': '+(i.seen?'≈ '+fmt(val(i)):'сначала diag'));
+else if(c=='flash'&&need()){if(!i.seen)o('Сначала diag');else if(!i.d.includes('sw'))o('Прошивка в порядке');else{o('Прошиваю '+i.n+'...');if(Math.random()<LP[g.lap-1]){i.d=i.d.filter(k=>k!='sw');o('Готово. Блокировка снята.')}else if(Math.random()<.25){i.c*=.7;o('Кирпич! Устройство потеряло 30% состояния.')}else o('Ошибка. Попробуйте ещё раз.')}}
+else if(c=='bal')o(fmt(g.money));else if(c=='stats')o('Сделок: '+g.deals+'\nПрибыль: '+fmt(g.profit)+'\nРепутация: '+g.rep);
+else if(c=='upgrade'){const p=[0,25000,70000][g.lap];if(g.lap>=3)o('Максимальный уровень');else if(g.money<p)o('Нужно '+fmt(p));else{g.money-=p;g.lap++;o('Ноутбук улучшен: '+LN[g.lap-1])}}
+else if(c=='neofetch')o('Перекуп OS 2.0\nCPU: '+['Celeron','Core i5','Ryzen 9'][g.lap-1]+'\nRAM: '+[4,16,64][g.lap-1]+' GB\nUptime: день '+g.day);
+else if(c=='clear')term=[];else if(c=='sudo')o('Вы не root. Инцидент зафиксирован 😅');else if(c=='rm')o('Не сегодня.');else o('Неизвестная команда: '+c);
+save();render();$('#ti').focus()}
+// ===== Профиль и админ =====
+function vP(){const c=15000*g.cap;return`<div class="card"><b>${esc(g.nick)}</b><div class="mu">${esc(g.email)}</div><div>Сделок: ${g.deals} · прибыль ${fmt(g.profit)}</div></div>
+<div class="card"><b>Склад: ${g.cap} мест</b><br><button class="btn" onclick="cap()">+2 места за ${fmt(c)}</button></div>
+<div class="card"><b>Промокод или подарок</b><input id="pc" placeholder="Введите код"><button class="btn" onclick="redeem()">Применить</button></div>
+<button class="btn g" onclick="exp()">Перенос сохранения</button><button class="btn g" onclick="out()">Выйти</button>
+<div class="mu" style="margin-top:20px;text-align:center" onclick="if(++taps>=7){taps=0;adminLogin()}">Перекуп 3 · v1.0</div>`}
+function cap(){const c=15000*g.cap;if(g.money<c)return toast('Нужно '+fmt(c));g.money-=c;g.cap+=2;save();render()}
+function redeem(){const[a,s,sg]=$('#pc').value.trim().split('-');if(!sg||sg!=h(g.nick.toLowerCase()+'|'+a+'|'+s+ADMIN_KEY))return toast('Код не подходит');if(g.used.includes(s))return toast('Код уже использован');
+g.used.push(s);g.money+=+a;save();render();toast('Подарок: '+fmt(+a))}
+function adminLogin(){M(`<h2>Админ</h2><input id="ak" type="password" placeholder="Ключ админа"><button class="btn" onclick="if($('#ak').value==ADMIN_KEY){adm=1;panel()}else toast('Неверный ключ')">Войти</button>`)}
+function panel(){if(!adm)return;M(`<h2>Админ-меню</h2>
+<button class="btn" onclick="A('m',100000)">+100 000 ₽</button><button class="btn" onclick="A('m',1000000)">+1 000 000 ₽</button><button class="btn g" onclick="A('rain')">Дождь из денег 💸</button>
+<input id="am" type="number" placeholder="Своя сумма (можно с минусом)"><button class="btn g" onclick="A('m',+$('#am').value||0)">Выдать себе</button>
+<button class="btn g" onclick="A('rep')">Репутация 100</button><button class="btn g" onclick="A('gold')">Золотой iPhone</button><button class="btn g" onclick="A('fixall')">Починить весь склад</button><button class="btn g" onclick="A('week')">+7 дней</button><button class="btn g" onclick="A('cap')">Склад +10</button><button class="btn r" onclick="A('wipe')">Очистить склад</button>
+<h2 style="margin-top:16px">Подарочный код игроку</h2><div class="mu">Игрок вводит код в профиле, и деньги приходят ему. Работает офлайн, без сервера.</div>
+<input id="gn" placeholder="Ник игрока"><input id="ga" type="number" placeholder="Сумма"><button class="btn" onclick="gift()">Создать код</button><div id="gc"></div>`)}
+function gift(){const n=$('#gn').value.trim().toLowerCase(),a=+$('#ga').value;if(!n||!a)return toast('Нужны ник и сумма');const s=Math.random().toString(36).slice(2,7);
+const c=a+'-'+s+'-'+h(n+'|'+a+'|'+s+ADMIN_KEY);$('#gc').innerHTML=`<textarea rows="2" readonly onclick="this.select()">${c}</textarea><div class="mu">Код только для ника «${esc(n)}», использовать можно один раз.</div>`}
+function A(t,v){if(!adm)return;if(t=='m')g.money+=v;if(t=='rep')g.rep=100;if(t=='week'){g.day+=6;nd()}if(t=='cap')g.cap+=10;if(t=='wipe')g.inv=[];if(t=='fixall')g.inv.forEach(i=>{i.d=[];i.seen=1});
+if(t=='gold'){if(g.inv.length>=g.cap)return toast('Склад полон');g.inv.push({id:'g'+Date.now(),ct:0,n:'Золотой iPhone 15 Pro',base:500000,c:1,d:[],seen:1,cost:0,s:'Админ',hon:1})}
+if(t=='rain')for(let k=0;k<30;k++){const e=document.createElement('div');e.className='rain';e.textContent='💸';e.style.left=Math.random()*95+'vw';e.style.animationDelay=Math.random()*1.2+'s';document.body.append(e);setTimeout(()=>e.remove(),4200)}
+save();render();toast('Готово')}
+// ===== Старт =====
+const last=ST.g('pk2:last'),raw=last&&ST.g('pk2:'+last);if(raw){try{g=JSON.parse(raw)}catch(e){}}render();
+</script></body></html>
