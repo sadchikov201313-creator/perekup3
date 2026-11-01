@@ -25,6 +25,11 @@ jobs:
         with:
           gradle-version: '8.7'
 
+      - name: Найти файл игры
+        run: |
+          test -f index.html || mv "$(ls *.html | head -1)" index.html
+          ls -la
+
       - run: bash build.sh
 
       - uses: actions/upload-artifact@v7
